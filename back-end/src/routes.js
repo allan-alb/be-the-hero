@@ -8,9 +8,14 @@ const SessionController = require('./controllers/SessionController');
 
 const routes = express.Router();
 
-routes.post('/sessions', SessionController.create); // validar se login está sendo enviado
+routes.post('/sessions', celebrate({
+    [Segments.BODY]: Joi.object().keys({
+        id: Joi.string().required().alphanum(),
+    })
+}), SessionController.create); 
 
 routes.get('/ongs', OngController.index);
+
 routes.post('/ongs', celebrate({
     [Segments.BODY]: Joi.object().keys({
         name: Joi.string().required(),
@@ -32,11 +37,23 @@ routes.get('/incidents', celebrate({
         page: Joi.number(),
     })
 }), IncidentController.index);
-routes.post('/incidents', IncidentController.create);   // validar body e header
+
+routes.post('/incidents', celebrate({
+    [Segments.HEADERS]: Joi.object({
+        authorization: Joi.string().required().alphanum(),
+    }).unknown(),
+    [Segments.BODY]: Joi.object().keys({
+        title: Joi.string().required(),
+        description: Joi.string(),
+        value: Joi.number().required(),
+    }),
+}), IncidentController.create);
+
 routes.delete('/incidents/:id', celebrate({
     [Segments.PARAMS]: Joi.object().keys({
         id: Joi.number().required(),
     })
 }), IncidentController.delete);
+
 
 module.exports = routes;

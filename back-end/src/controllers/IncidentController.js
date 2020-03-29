@@ -47,6 +47,10 @@ module.exports = {
             .where('id', id)
             .first();
 
+        if (!incident){
+            return response.status(404).send();
+        }
+
         if (incident.ong_id !== ong_id){
             return response.status(401).json({ error: "Operation not permitted." });
         }
